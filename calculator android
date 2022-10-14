@@ -1,0 +1,109 @@
+package com.nim200020024.calculator;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
+import com.google.android.material.button.MaterialButton;
+
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
+
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+
+    TextView hasil,solusi;
+    MaterialButton buttonC,buttonBuka,buttonTutup;
+    MaterialButton buttonBagi,buttonKali,buttonTambah,buttonKurang,buttonEquals;
+    MaterialButton button0,button1,button2,button3,button4,button5,button6,button7,button8,button9;
+    MaterialButton buttonAc,buttonPoint;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        hasil = findViewById(R.id.layout_hasil);
+        solusi = findViewById(R.id.hasil_bayangan);
+
+        assignId(buttonC,R.id.button_c);
+        assignId(buttonBuka,R.id.button_buka);
+        assignId(buttonTutup,R.id.button_tutup);
+        assignId(buttonBagi,R.id.button_bagi);
+        assignId(buttonTambah,R.id.button_tambah);
+        assignId(buttonKali,R.id.button_kali);
+        assignId(buttonKurang,R.id.button_kurang);
+        assignId(buttonEquals,R.id.button_equals);
+        assignId(button0,R.id.button_zero);
+        assignId(button1,R.id.button_one);
+        assignId(button2,R.id.button_two);
+        assignId(button3,R.id.button_three);
+        assignId(button4,R.id.button_four);
+        assignId(button5,R.id.button_five);
+        assignId(button6,R.id.button_six);
+        assignId(button7,R.id.button_seven);
+        assignId(button8,R.id.button_eight);
+        assignId(button9,R.id.button_nine);
+        assignId(buttonAc,R.id.button_ac);
+        assignId(buttonPoint,R.id.button_point);
+    }
+
+    void assignId(MaterialButton btn,int id){
+        btn = findViewById(id);
+        btn.setOnClickListener(this);
+    }
+
+
+    @Override
+    public void onClick(View view) {
+        MaterialButton button = (MaterialButton) view;
+        String buttonText = button.getText().toString();
+        //perhitungan yang dilakukan
+        String dataToCalculate = solusi.getText().toString();
+
+        if(buttonText.equals("AC")){
+            solusi.setText("");
+            hasil.setText("0");
+            return;
+        }
+
+        //hasil openjumlahan sementara
+        if(buttonText.equals("=")){
+            solusi.setText(hasil.getText());
+            return;
+        }
+
+
+        if(buttonText.equals("C")){
+            dataToCalculate = dataToCalculate.substring(0,dataToCalculate.length()-1);
+        }else{
+            dataToCalculate = dataToCalculate+buttonText;
+        }
+
+        solusi.setText(dataToCalculate);
+        //hasil penjumlahan utama
+        String finalResult = getResult(dataToCalculate);
+
+        if(!finalResult.equals("Err")){
+            hasil.setText(finalResult);
+        }
+    }
+
+    String getResult(String data){
+        try {
+            Context context = Context.enter();
+            context.setOptimizationLevel(-1);
+            Scriptable scriptable = context.initStandardObjects();
+            String finalResult = (String) context.evaluateString(scriptable,data,"Javascript",1,null).toString();
+            if(finalResult.endsWith(".0")){
+                finalResult = finalResult.replace(".0","");
+            }
+            return finalResult;
+        }catch (Exception e){
+            return "Err";
+        }
+
+    }
+}
